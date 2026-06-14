@@ -1,0 +1,19 @@
+{
+  "_README": "CONTRIBUTION POINT 2 of 2 — this encodes your family's standing taste so requests can stay short. Keys starting with _ are ignored by the loader. Fill in the TODOs with REAL values; they are the domain knowledge the code can't guess. The ranker (src/reservation_assistant/ranking.py) reads these.",
+
+  "reservation_name": "TODO: the name reservations are held under, e.g. Eric Backman",
+  "default_party_size": 2,
+
+  "price_ceiling": 3,
+  "_price_ceiling_help": "1-4 ($ to $$$$). Soft cap the ranker discourages exceeding. null = no cap.",
+
+  "favorite_cuisines": ["TODO: e.g. Italian", "TODO: e.g. Japanese", "TODO: e.g. French"],
+  "avoid_cuisines": ["TODO: e.g. buffet"],
+
+  "favorite_areas": ["TODO: e.g. Ossington", "TODO: e.g. King West", "TODO: e.g. Leslieville"],
+
+  "min_rating_floor": 4.0,
+  "_min_rating_floor_help": "Drop anything below this many stars before ranking. null = keep all.",
+
+  "notes": "TODO: free text the assistant can surface, e.g. 'sister prefers quieter rooms, no bar seating, dietary: one pescatarian'"
+}
