@@ -53,8 +53,8 @@ class GooglePlacesProvider(ReservationProvider):
     def __init__(self, api_key: str | None = None):
         self.api_key = api_key or os.environ.get("GOOGLE_PLACES_API_KEY")
 
-    def supports_booking(self) -> bool:
-        return False  # discovery only — V1 hands off a link
+    # discovery only: inherits supports_availability() -> False and
+    # find_availability() -> [] from the base class. V1 hands off a link.
 
     def search(self, request: ReservationRequest) -> list[Restaurant]:
         if not self.api_key:

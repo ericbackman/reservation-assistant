@@ -86,3 +86,48 @@ class RankedOption:
     restaurant: Restaurant
     score: float
     reasons: list[str] = field(default_factory=list)
+
+
+@dataclass
+class WatchTarget:
+    """A specific reservation a human wants — the thing the V2 monitor watches for.
+
+    Human-in-the-loop contract: the watcher REPORTS when a matching Slot opens; it
+    never books. The human completes the reservation via Slot.confirm_url.
+    """
+
+    restaurant_name: str
+    provider: str = "resy"              # which V2 provider owns this venue
+    provider_id: Optional[str] = None   # venue id for the provider's availability call
+    date: str = ""                      # ISO date, e.g. "2026-06-21"
+    party_size: int = 2
+    earliest_time: str = "17:00"        # 24h HH:MM — the window the human will accept
+    latest_time: str = "21:30"
+    area: Optional[str] = None
+
+    def in_window(self, hhmm: str) -> bool:
+        """True if a slot time falls inside the acceptable window.
+        String compare is safe because times are zero-padded 24h ('19:30')."""
+        return self.earliest_time <= hhmm <= self.latest_time
+
+
+@dataclass
+class Slot:
+    """A concrete open table the monitor found.
+
+    `confirm_url` is the one-tap human hand-off — the agent surfaces it, the human
+    taps it to book. There is no booking method anywhere; this link IS the seam
+    between automation and the human transaction.
+    """
+
+    restaurant_name: str
+    source: str                         # which provider reported it
+    date: str                           # ISO date
+    time: str                           # 24h HH:MM
+    party_size: int
+    confirm_url: Optional[str] = None   # deep link for the human to finish booking
+    provider_id: Optional[str] = None
+
+    def key(self) -> str:
+        """Stable identity for de-duping the same slot across repeated polls."""
+        return f"{self.source}:{self.restaurant_name}:{self.date}:{self.time}:{self.party_size}"

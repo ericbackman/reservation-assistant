@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from ..models import ReservationRequest, Restaurant
+from ..models import ReservationRequest, Restaurant, Slot, WatchTarget
 
 
 class ReservationProvider(ABC):
@@ -21,12 +21,23 @@ class ReservationProvider(ABC):
         """Return candidate restaurants for the request. Discovery only —
         ranking and filtering happen downstream in the engine."""
 
-    def supports_booking(self) -> bool:
-        """Whether this provider can actually hold/book a table (V2). Discovery
-        providers return False; the engine uses this to decide whether to offer
-        a 'book here' hand-off link vs. an in-agent booking flow."""
+    def booking_link(self, restaurant: Restaurant) -> str | None:
+        """A generic per-restaurant link a human can click to go book themselves
+        (used by V1 discovery hand-off)."""
+        return restaurant.booking_link
+
+    # --- V2: human-in-the-loop availability monitoring -----------------------
+    # NOTE: there is deliberately NO book() method anywhere in this hierarchy.
+    # A provider may REPORT open tables; only the human completes the booking, via
+    # Slot.confirm_url. That boundary is the entire point of the design — the code
+    # structurally cannot place a reservation on its own.
+    def supports_availability(self) -> bool:
+        """Whether this provider can report live open slots (V2). Discovery-only
+        providers (e.g. Google Places) return False."""
         return False
 
-    def booking_link(self, restaurant: Restaurant) -> str | None:
-        """A URL a human can click to finish the reservation themselves."""
-        return restaurant.booking_link
+    def find_availability(self, target: WatchTarget) -> list[Slot]:
+        """One poll for open tables matching `target`. Default: empty, because
+        discovery providers have no live availability. V2 providers override and
+        return Slots that each carry a confirm_url for the human to tap."""
+        return []

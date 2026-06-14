@@ -23,8 +23,17 @@ cli.py  ──►  engine.find_options()     orchestration: search → filter �
                  ▼
         providers/ (behind ReservationProvider)
           • GooglePlacesProvider  ✅ V1, official API, discovery only
-          • ResyProvider          ⏸ V2 stub (booking, ToS-risky)
-          • OpenTableProvider     ⏸ V2 stub (booking, ToS-risky)
+          • ResyProvider          ⏸ V2 stub, availability monitor (no book())
+          • OpenTableProvider     ⏸ V2 stub, availability monitor (no book())
+
+V2 — human-in-the-loop (watch.py):
+
+  WatchTarget ─► provider.find_availability() ─► should_notify() ─► Notifier
+                      (open Slots)               (your policy)      (one-tap link)
+
+  The agent REPORTS open tables; the HUMAN taps Slot.confirm_url to book.
+  There is deliberately no book() anywhere — that boundary is the design, and
+  it's what keeps the tool on the clean side of platform ToS + reservation law.
 ```
 
 The engine depends only on the `ReservationProvider` interface — adding a
@@ -44,12 +53,15 @@ python cli.py "cozy Italian for a date" --area Ossington --price-max 3
 python cli.py "best ramen in Toronto" --open-now --json
 ```
 
-## The two human-owned decisions
+## The three human-owned decisions
 
 1. **`src/reservation_assistant/ranking.py`** — how options get scored. Encodes
    what the family values when good spots tie (rating vs price-fit vs novelty).
 2. **`config/preferences.toronto.json`** — the family's standing taste (cuisines,
    areas, price ceiling, the reservation name). Fill the `TODO` markers.
+3. **`src/reservation_assistant/watch.py` → `should_notify()`** (V2) — when an
+   open table is actually worth pinging a human about (dedup, time window, quiet
+   hours, prime-time-only). Tunes how the monitor interrupts your family.
 
 ## Conventions
 

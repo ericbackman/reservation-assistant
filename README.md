@@ -14,9 +14,15 @@ Built as a Claude Code skill on top of a small, provider-abstracted Python engin
 - Returns the top options, each with *why it was picked* and a booking link
 
 > **V1 is discovery only.** It recommends and hands off a link — it does not
-> place the reservation. Live availability + booking (Resy/OpenTable) is V2 and
-> involves unofficial, Terms-of-Service-restricted access; the provider stubs
-> document that path and its risks.
+> place the reservation.
+>
+> **V2 is human-in-the-loop, by design.** Resy/OpenTable access is unofficial and
+> Terms-of-Service-restricted, so the agent never books. Instead it *watches* for
+> a table you want and pings you the instant one opens, with a one-tap link to
+> finish the booking yourself. There is deliberately no `book()` method anywhere —
+> that keeps the tool clear of platform ToS and the reservation-reselling laws
+> (which target commercialization, not personal use). See the provider stubs and
+> `watch.py` for the full rationale.
 
 ## Quick start
 
