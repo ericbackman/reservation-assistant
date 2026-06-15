@@ -32,6 +32,25 @@ Copy-Item .env.example .env        # paste your Google Places API key
 python cli.py "date-night Italian" --area Ossington --price-max 3
 ```
 
+## Getting a Google Places API key (free, ~5 min)
+
+Costs $0 at personal volume, but **billing must be enabled** (a card on file) even
+for the free tier, and you should **cap usage** so a bug can't run up a bill.
+
+1. **Project** — [console.cloud.google.com](https://console.cloud.google.com) →
+   project dropdown → New Project → select it.
+2. **Billing** *(required even for free)* — ☰ → Billing → link/create a billing account.
+3. **Enable** — APIs & Services → Library → **"Places API (New)"** → Enable.
+   (Must be the **(New)** one — the legacy "Places API" won't match this code.)
+4. **Key** — APIs & Services → Credentials → Create credentials → API key (`AIza…`).
+5. **Restrict** — edit the key → API restrictions → restrict to **Places API (New)** only.
+   (App restrictions: None for a local script.)
+6. **Cap it** — APIs & Services → Places API (New) → Quotas → set per-day limit low
+   (e.g. **500/day**). This is the real circuit breaker — it *stops* calls past the cap.
+7. **Budget alert (optional)** — Billing → Budgets & alerts → $1 budget, email at 100%.
+   Note: alerts only email you; the quota in step 6 is what hard-stops spending.
+8. **Use it** — `Copy-Item .env.example .env`, paste the key after `GOOGLE_PLACES_API_KEY=`.
+
 ## Architecture
 
 The engine talks to a `ReservationProvider` interface, not to any specific
