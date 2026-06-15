@@ -30,7 +30,8 @@ def _load_dotenv() -> None:
     env = Path(__file__).resolve().parent / ".env"
     if not env.exists():
         return
-    for line in env.read_text(encoding="utf-8").splitlines():
+    # utf-8-sig strips a BOM if Notepad/PowerShell added one when saving .env
+    for line in env.read_text(encoding="utf-8-sig").splitlines():
         line = line.strip()
         if not line or line.startswith("#") or "=" not in line:
             continue
@@ -98,6 +99,11 @@ def render_json(options) -> str:
 
 
 def main() -> int:
+    # Windows consoles default to cp1252 and crash on glyphs like ★ — force UTF-8.
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except (AttributeError, ValueError):
+        pass
     parser = argparse.ArgumentParser(description="Toronto restaurant discovery (V1)")
     parser.add_argument("query", help="free-text ask, e.g. 'cozy Italian for a date'")
     parser.add_argument("--area", help="neighborhood to bias toward, e.g. Ossington")
